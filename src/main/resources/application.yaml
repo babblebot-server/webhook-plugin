@@ -1,0 +1,10 @@
+
+
+
+webhook:
+  - name: "discord"
+    method: "POST"
+    url: ""
+    body: ""
+
+
