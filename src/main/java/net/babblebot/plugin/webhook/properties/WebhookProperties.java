@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Data
@@ -21,5 +22,6 @@ public class WebhookProperties {
         private String method;
         private String url;
         private String body;
+        private Map<String, String> headers;
     }
 }

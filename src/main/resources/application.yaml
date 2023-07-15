@@ -1,10 +1,8 @@
-
-
-
 webhook:
-  - name: "discord"
+  - name: "aaron"
     method: "POST"
-    url: ""
+    url: "https://ha.aaronburt.co.uk/api/states/sensor.aaron_location"
     body: ""
-
-
+    headers:
+      authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIwYWYxYjM4MjM1NWY0NjgzYTAyNzg1MzdhNDcwOTg2MiIsImlhdCI6MTY4ODU5NzUxMywiZXhwIjoyMDAzOTU3NTEzfQ.vtJsgKcYF8EKIV8lqlRXuixW2XVJwv56ztxtDiqxHVI"
+      content-type: "application/json"

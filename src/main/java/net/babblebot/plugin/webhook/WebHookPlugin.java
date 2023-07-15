@@ -21,6 +21,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 /**
  * Edit me
@@ -73,23 +76,21 @@ public class WebHookPlugin {
                 throw new Exception("hook is null");
             }
 
+            LinkedList<String> resultList = new LinkedList<>();
+            hook.getHeaders().forEach((name, value) -> { resultList.add(name); resultList.add(value); });
+
             HttpClient client = HttpClient.newHttpClient();
-
-
-            //Need to implement the method, currently it will only send POST
-            HttpRequest request =  HttpRequest.newBuilder()
+            HttpRequest request = HttpRequest.newBuilder()
+                    .headers(resultList.toArray(String[]::new))
                     .uri(URI.create(hook.getUrl()))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(hook.getBody()))
+                    .GET()
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            int statusCode = response.statusCode();
-
             return EmbedMessage.builder().title("Hook Success")
                     .color(DiscordColor.GREEN)
                     .author(embedAuthor())
-                    .description(String.valueOf(statusCode))
+                    .description(response.body())
                     .build();
 
         } catch (Exception e) {
@@ -97,7 +98,6 @@ public class WebHookPlugin {
             return EmbedMessage.builder().title("Hook error")
                     .author(embedAuthor())
                     .color(DiscordColor.RED)
-                    .description("")
                     .build();
         }
     }
