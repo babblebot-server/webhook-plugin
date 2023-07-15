@@ -64,11 +64,9 @@ public class WebHookPlugin {
         }
         return null;
     }
-
-
     @Command(aliases = "send", description = "Trigger the hook")
     @CommandParam(value = "hook", canBeEmpty = false, optional = false, exampleValue = "hook name")
-    public EmbedMessage config(DiscordMessage message, ICommandContext context) {
+    public EmbedMessage sendDiscordResponse(DiscordMessage message, ICommandContext context) {
         try {
             WebhookProperties.Webhook hook = getWebhook(context.getParameter("hook"));
 
@@ -87,7 +85,7 @@ public class WebHookPlugin {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return EmbedMessage.builder().title("Hook Success")
+            return EmbedMessage.builder().title("Hook [Success] Called: " + hook.getUrl())
                     .color(DiscordColor.GREEN)
                     .author(embedAuthor())
                     .description(response.body())
@@ -95,9 +93,10 @@ public class WebHookPlugin {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return EmbedMessage.builder().title("Hook error")
-                    .author(embedAuthor())
+            return EmbedMessage.builder().title("Hook [Error]")
                     .color(DiscordColor.RED)
+                    .author(embedAuthor())
+                    .description(e.getMessage())
                     .build();
         }
     }
