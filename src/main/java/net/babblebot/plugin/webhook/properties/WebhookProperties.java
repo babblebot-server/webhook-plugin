@@ -1,5 +1,6 @@
 package net.babblebot.plugin.webhook.properties;
 
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,6 +22,7 @@ public class WebhookProperties {
         private String name;
         private String method;
         private String url;
+        @Nullable
         private String body;
         private Map<String, String> headers;
     }

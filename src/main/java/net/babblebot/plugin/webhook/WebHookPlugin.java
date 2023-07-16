@@ -91,7 +91,13 @@ public class WebHookPlugin {
 
             switch (hook.getMethod()) {
                 case "GET" -> requestBuilder.GET();
-                case "POST" -> requestBuilder.POST(HttpRequest.BodyPublishers.ofString(hook.getBody()));
+                case "POST" -> {
+                    if(hook.getBody() != null){
+                        requestBuilder.POST(HttpRequest.BodyPublishers.ofString(hook.getBody()));
+                    } else {
+                        requestBuilder.POST(HttpRequest.BodyPublishers.noBody());
+                    }
+                }
                 default -> throw new IllegalArgumentException("Unsupported request method: " + hook.getMethod());
             }
 
