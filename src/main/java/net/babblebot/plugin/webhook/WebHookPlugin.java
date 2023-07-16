@@ -22,12 +22,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
- * Edit me
- *
  * @author email@aaronburt.co.uk (Aaron Michael Burt)
  * @since 1.0.0
  */
@@ -41,6 +38,15 @@ public class WebHookPlugin {
                 .name("Webhook")
                 .url("https://github.com/babblebot-server/webhook-plugin")
                 .iconUrl("https://avatars.githubusercontent.com/u/138989349")
+                .build();
+    }
+
+    public EmbedMessage createErrorEmbedMessage(String title, String description){
+        return EmbedMessage.builder()
+                .title(title)
+                .description(description)
+                .color(DiscordColor.RED)
+                .author(embedAuthor())
                 .build();
     }
 
@@ -64,6 +70,7 @@ public class WebHookPlugin {
         }
         return null;
     }
+
     @Command(aliases = "send", description = "Trigger the hook")
     @CommandParam(value = "hook", canBeEmpty = false, optional = false, exampleValue = "hook name")
     public EmbedMessage sendDiscordResponse(DiscordMessage message, ICommandContext context) {
@@ -76,16 +83,21 @@ public class WebHookPlugin {
 
             LinkedList<String> resultList = new LinkedList<>();
             hook.getHeaders().forEach((name, value) -> { resultList.add(name); resultList.add(value); });
-
             HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
+            URI uri = URI.create(hook.getUrl());
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .headers(resultList.toArray(String[]::new))
-                    .uri(URI.create(hook.getUrl()))
-                    .GET()
-                    .build();
+                    .uri(uri);
 
+            switch (hook.getMethod()) {
+                case "GET" -> requestBuilder.GET();
+                case "POST" -> requestBuilder.POST(HttpRequest.BodyPublishers.ofString(hook.getBody()));
+                default -> throw new IllegalArgumentException("Unsupported request method: " + hook.getMethod());
+            }
+
+            HttpRequest request = requestBuilder.build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return EmbedMessage.builder().title("Hook [Success] Called: " + hook.getUrl())
+            return EmbedMessage.builder().title("Hook " + hook.getName() + " " + hook.getUrl())
                     .color(DiscordColor.GREEN)
                     .author(embedAuthor())
                     .description(response.body())
@@ -93,11 +105,7 @@ public class WebHookPlugin {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return EmbedMessage.builder().title("Hook [Error]")
-                    .color(DiscordColor.RED)
-                    .author(embedAuthor())
-                    .description(e.getMessage())
-                    .build();
+            return createErrorEmbedMessage("Hook [Error]", e.getMessage());
         }
     }
 }
